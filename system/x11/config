@@ -1,0 +1,11 @@
+# x11 — X.org baseline: DRM, framebuffer console, evdev input.
+#
+# Verified:
+#   liquorix-sources 7.0.9_p1 (2026-05-23)
+
+CONFIG_DRM=y
+CONFIG_DRM_FBDEV_EMULATION=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_INPUT_EVDEV=y
+
+# vim: ft=conf

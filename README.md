@@ -14,6 +14,9 @@ baseline via `scripts/kconfig/merge_config.sh`.
 - `tunings/<slug>/` — UX-driven kernel preferences (HZ, preemption,
   scheduler granularity) not tied to a machine, userspace tool, or
   kernel source variant.
+- `system/<slug>/` — installation, provisioning, or boot-infrastructure
+  realities (root filesystem driver, EFI vs legacy boot, distro
+  support, display server baseline).
 
 Each fragment dir contains a `README.md` (context, quirks, gotchas) and
 a file named `config` (extensionless, vim modeline `ft=conf`).

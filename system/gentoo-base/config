@@ -1,0 +1,11 @@
+# gentoo-base — Gentoo Linux distro-support knobs.
+#
+# Verified:
+#   liquorix-sources 7.0.9_p1 (2026-05-23)
+
+CONFIG_GENTOO_LINUX=y
+CONFIG_GENTOO_LINUX_UDEV=y
+CONFIG_GENTOO_LINUX_PORTAGE=y
+CONFIG_GENTOO_LINUX_INIT_SCRIPT=y
+
+# vim: ft=conf

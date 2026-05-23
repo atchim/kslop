@@ -34,6 +34,13 @@ A fragment scoped to knobs unique to one kernel source variant (liquorix,
 gentoo-sources, vanilla).
 _Avoid_: variant fragment, tree fragment
 
+**System fragment**:
+A fragment scoped to an installation, provisioning, or boot-infrastructure
+reality — root filesystem driver, EFI vs legacy boot path, distro-specific
+support, display server baseline. Cross-machine but tied to how this
+specific install is set up.
+_Avoid_: distro fragment, install fragment
+
 **Baseline**:
 The `.config` produced by `make defconfig` against a specific kernel source.
 Not stored in the repo; fragments are merged onto it at build time.
@@ -47,8 +54,8 @@ _Avoid_: recipe, target, config
 ## Relationships
 
 - A **build** = a **baseline** + one **flavor fragment** + zero-or-more
-  **tuning fragments** + one **hardware fragment** + zero-or-more
-  **feature fragments**
+  **tuning fragments** + zero-or-more **system fragments** + one
+  **hardware fragment** + zero-or-more **feature fragments**
 - A **baseline** is determined by which kernel source the **flavor fragment**
   targets
 - **Fragments** are orthogonal: any combination is valid as long as no two
