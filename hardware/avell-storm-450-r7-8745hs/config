@@ -81,10 +81,21 @@ CONFIG_USB_XHCI_PCI=m
 
 # Input — touchpad
 # ----------------
-# Integrated touchpad sits on an AMD I2C bus enumerated via ACPI;
-# I2C_AMD_MP2 brings up the controller, I2C_HID_ACPI does the
-# HID-over-I2C transport, HID_MULTITOUCH provides the gesture-aware
-# class driver.
+# Integrated touchpad is an Elan I2C-HID (ELAN0415 in ACPI) wired to
+# a Synopsys DesignWare I2C controller (AMDI0010 in ACPI). Chain:
+#   COMMON_CLK            — clock framework I2C_DESIGNWARE_PLATFORM
+#                           depends on (kernel framework, hence =y)
+#   I2C_DESIGNWARE_*      — exposes the AMDI0010 controller as i2c bus
+#   I2C_HID_ACPI          — HID-over-I2C transport
+#   HID_MULTITOUCH        — gesture-aware HID class driver
+# AMDPSP variant covers the AMD PSP-integrated I2C path used by some
+# Phoenix chipsets. AMD_MP2 is for the sensor-fusion hub I2C, not the
+# touchpad, but stays in for AMD_SFH_HID's benefit.
+CONFIG_COMMON_CLK=y
+CONFIG_I2C_DESIGNWARE_CORE=m
+CONFIG_I2C_DESIGNWARE_PLATFORM=m
+CONFIG_I2C_DESIGNWARE_PCI=m
+CONFIG_I2C_DESIGNWARE_AMDPSP=y
 CONFIG_I2C_AMD_MP2=m
 CONFIG_I2C_HID_ACPI=m
 CONFIG_HID_MULTITOUCH=m
