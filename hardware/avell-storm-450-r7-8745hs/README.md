@@ -15,6 +15,8 @@ subsystem ID `1558:35a1`).
 - **USB:** four AMD XHCI controllers (built-in chipset)
 - **Bluetooth:** Intel AX210 BT (USB transport, `8087:0032`)
 - **Webcam:** Chicony USB2.0 UVC camera (`04f2:b729`)
+- **Touchpad:** integrated, I2C-HID over AMD MP2 I2C bus
+  (enumerated via ACPI, not PCI)
 
 ## Quirks
 

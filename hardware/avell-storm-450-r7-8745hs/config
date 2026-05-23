@@ -38,6 +38,12 @@ CONFIG_DRM_AMDGPU=m
 # Audio
 # -----
 CONFIG_SND_HDA_INTEL=m
+# Codec drivers — without these, snd_hda_intel binds the PCI controller
+# but no driver knows how to talk to the codec, and probing fails with
+# "Cannot probe codecs, giving up".
+CONFIG_SND_HDA_GENERIC=m
+CONFIG_SND_HDA_CODEC_REALTEK=m
+CONFIG_SND_HDA_CODEC_HDMI=m
 # SOF stack for AMD ACP 6.3 (internal mic / speakers). TOPLEVEL is the
 # menuconfig gate that wraps the whole sound/soc/sof/Kconfig subtree.
 CONFIG_SND_SOC=m
@@ -72,5 +78,15 @@ CONFIG_USB_VIDEO_CLASS=m
 # USB
 # ---
 CONFIG_USB_XHCI_PCI=m
+
+# Input — touchpad
+# ----------------
+# Integrated touchpad sits on an AMD I2C bus enumerated via ACPI;
+# I2C_AMD_MP2 brings up the controller, I2C_HID_ACPI does the
+# HID-over-I2C transport, HID_MULTITOUCH provides the gesture-aware
+# class driver.
+CONFIG_I2C_AMD_MP2=m
+CONFIG_I2C_HID_ACPI=m
+CONFIG_HID_MULTITOUCH=m
 
 # vim: ft=conf
