@@ -1,0 +1,3 @@
+arrowParens = 'avoid'
+bracketSpacing = false
+singleQuote = true

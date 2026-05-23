@@ -1,0 +1,6 @@
+config:
+  # Tables are a first-class structure for compact data display; exempt them
+  # from the line-length cap (matches the Markdown convention's exemption
+  # for code blocks, URLs, and tables).
+  MD013:
+    tables: false

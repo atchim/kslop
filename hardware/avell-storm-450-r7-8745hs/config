@@ -1,0 +1,17 @@
+# avell-storm-450-r7-8745hs — AMD Ryzen 7 8745HS + NVIDIA RTX 4050
+# Mobile laptop.
+#
+# Draft — first build not yet attempted. Populate the Verified section
+# after the first successful merge+build.
+
+CONFIG_X86_AMD_PSTATE=y
+CONFIG_X86_AMD_PSTATE_DEFAULT_MODE=3
+CONFIG_AMD_PMC=y
+CONFIG_AMD_PMF=m
+
+# NVIDIA — disable nouveau, rely on out-of-tree nvidia-drivers.
+# CONFIG_DRM_NOUVEAU is not set
+
+# TODO: confirm NIC, WiFi, and audio drivers against `lspci -nn`.
+
+# vim: ft=conf
