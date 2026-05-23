@@ -50,6 +50,23 @@ CONFIG_R8169=m
 CONFIG_IWLWIFI=m
 CONFIG_IWLMVM=m
 
+# Bluetooth
+# ---------
+# Intel AX210 BT is wired over USB (8087:0032), so the USB HCI transport
+# is the relevant binding. BT_HCIBTUSB selects BT_INTEL automatically.
+CONFIG_BT=m
+CONFIG_BT_HCIBTUSB=m
+
+# Media
+# -----
+# Chicony USB UVC webcam (04f2:b729) needs the V4L2 stack via the USB
+# media bus. MEDIA_SUPPORT_FILTER is on by default; the *_SUPPORT knobs
+# are how categories get opted in past the filter.
+CONFIG_MEDIA_SUPPORT=m
+CONFIG_MEDIA_USB_SUPPORT=y
+CONFIG_MEDIA_CAMERA_SUPPORT=y
+CONFIG_USB_VIDEO_CLASS=m
+
 # USB
 # ---
 CONFIG_USB_XHCI_PCI=m

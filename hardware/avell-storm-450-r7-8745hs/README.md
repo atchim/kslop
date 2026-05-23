@@ -13,6 +13,8 @@ subsystem ID `1558:35a1`).
 - **Audio:** three HDA paths — AMD iGPU HDMI, NVIDIA dGPU HDMI, and
   the internal speakers / mic via AMD ACP 6.3 (SOF)
 - **USB:** four AMD XHCI controllers (built-in chipset)
+- **Bluetooth:** Intel AX210 BT (USB transport, `8087:0032`)
+- **Webcam:** Chicony USB2.0 UVC camera (`04f2:b729`)
 
 ## Quirks
 
