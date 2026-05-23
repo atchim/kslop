@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# build — compose a kernel .config from fragments and bake it via olddefconfig.
+# build — compose a kernel .config from fragments into an out-of-tree build dir.
 #
 # Usage:
-#   build.sh <kernel-src-dir> <fragment>...
+#   build.sh [-o <outdir>] <kernel-src-dir> <fragment>...
 #
 # Where:
+#   -o <outdir>        out-of-tree build directory. Created if missing.
+#                       Default: ${XDG_CACHE_HOME:-~/.cache}/kslop/<ksrc-basename>/
 #   <kernel-src-dir>   path to an unpacked kernel source tree
 #   <fragment>...      one or more fragment paths (relative or absolute)
 #
 # Steps:
-#   - cd into the kernel source tree
-#   - make defconfig (writes baseline .config)
-#   - scripts/kconfig/merge_config.sh -m .config <fragments...>
-#   - make olddefconfig
+#   - make -C <ksrc> O=<outdir> defconfig
+#   - merge_config.sh -m -O <outdir> <outdir>/.config <fragments...>
+#   - make -C <ksrc> O=<outdir> olddefconfig
 #
-# Exits non-zero on merge conflicts or unknown-symbol redefinitions.
+# merge_config.sh prints "Value of CONFIG_X is redefined" for every
+# fragment-vs-baseline change — that's the entire point of fragments,
+# so we don't fail on it. Fragment-vs-fragment conflicts surface in
+# the same output (a symbol redefined twice across the merge sequence);
+# treat the output as a change log to skim, not as errors.
 
 set -euo pipefail
 
 # Show usage and exit non-zero.
 usage() {
-  echo 'usage: build.sh <kernel-src-dir> <fragment>...' >&2
+  echo 'usage: build.sh [-o <outdir>] <kernel-src-dir> <fragment>...' >&2
   exit 2
 }
 
@@ -33,6 +38,15 @@ abspath() {
     printf '%s/%s\n' "$PWD" "$1"
   fi
 }
+
+outdir=''
+while getopts 'o:h' opt; do
+  case $opt in
+    o) outdir=$OPTARG ;;
+    h | *) usage ;;
+  esac
+done
+shift "$((OPTIND - 1))"
 
 (($# >= 2)) || usage
 
@@ -49,6 +63,12 @@ merge="$ksrc/scripts/kconfig/merge_config.sh"
   exit 1
 }
 
+if [[ -z $outdir ]]; then
+  outdir="${XDG_CACHE_HOME:-$HOME/.cache}/kslop/$(basename "$ksrc")"
+fi
+outdir=$(abspath "$outdir")
+mkdir -p "$outdir"
+
 fragments=()
 for f in "$@"; do
   abs=$(abspath "$f")
@@ -59,21 +79,15 @@ for f in "$@"; do
   fragments+=("$abs")
 done
 
-cd "$ksrc"
+# Regenerate baseline each run: build.sh is deterministic given inputs,
+# not stateful across invocations.
+make -C "$ksrc" O="$outdir" defconfig >/dev/null
 
-make defconfig >/dev/null
+# Merge fragments. -m: merge only, no make pass.
+"$merge" -m -O "$outdir" "$outdir/.config" "${fragments[@]}"
 
-warn_log=$(mktemp)
-trap 'rm -f "$warn_log"' EXIT
+# Resolve undefined symbols against the tree's Kconfig.
+make -C "$ksrc" O="$outdir" olddefconfig >/dev/null
 
-"$merge" -m .config "${fragments[@]}" 2>"$warn_log"
-cat "$warn_log" >&2
-
-if grep -q 'is redefined' "$warn_log"; then
-  echo 'build.sh: merge produced conflicts — see warnings above' >&2
-  exit 1
-fi
-
-make olddefconfig >/dev/null
-
-echo "build.sh: ok — .config written to $ksrc/.config" >&2
+echo "build.sh: ok — .config written to $outdir/.config" >&2
+echo "build.sh:   next: make -C $ksrc O=$outdir -j$(nproc)" >&2

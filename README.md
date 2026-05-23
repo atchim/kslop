@@ -11,6 +11,9 @@ baseline via `scripts/kconfig/merge_config.sh`.
   requires specific `CONFIG_*` symbols.
 - `flavors/<slug>/` — fragments scoped to knobs unique to one kernel
   source variant.
+- `tunings/<slug>/` — UX-driven kernel preferences (HZ, preemption,
+  scheduler granularity) not tied to a machine, userspace tool, or
+  kernel source variant.
 
 Each fragment dir contains a `README.md` (context, quirks, gotchas) and
 a file named `config` (extensionless, vim modeline `ft=conf`).
@@ -18,16 +21,21 @@ a file named `config` (extensionless, vim modeline `ft=conf`).
 ## Building
 
 ```sh
-./build.sh /usr/src/linux-liquorix-6.18 \
+./build.sh /usr/src/linux-7.0.9-pf1 \
   flavors/liquorix/config \
+  tunings/interactive-desktop/config \
   hardware/avell-storm-450-r7-8745hs/config \
   features/docker/config
 ```
 
-`build.sh` runs `make defconfig` inside the kernel source tree, then
-`merge_config.sh -m .config <fragments...>`, then `make olddefconfig`.
-Conflicts in the merge propagate as a non-zero exit. The output
-`.config` lives in the kernel source tree, not in this repo.
+`build.sh` runs an **out-of-tree build**: `make O=<outdir> defconfig`
+against the kernel source tree, then `merge_config.sh -m -O <outdir>`
+with the fragments, then `make O=<outdir> olddefconfig`. The kernel
+source tree stays read-only; all artifacts (including `.config`) go
+to `<outdir>`. Pass `-o <outdir>` to override; the default is
+`${XDG_CACHE_HOME:-~/.cache}/kslop/<ksrc-basename>/`.
+`merge_config.sh` prints a "Value of CONFIG_X is redefined" line for
+every fragment-vs-baseline override — that's expected, not an error.
 
 ## See
 
