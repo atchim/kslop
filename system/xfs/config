@@ -1,0 +1,8 @@
+# xfs — XFS filesystem, built-in for root mount without initramfs.
+#
+# Verified:
+#   liquorix-sources 7.0.9_p1 (2026-05-23)
+
+CONFIG_XFS_FS=y
+
+# vim: ft=conf

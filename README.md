@@ -27,6 +27,11 @@ a file named `config` (extensionless, vim modeline `ft=conf`).
 ./build.sh /usr/src/linux-7.0.9-pf1 \
   flavors/liquorix/config \
   tunings/interactive-desktop/config \
+  system/gentoo-base/config \
+  system/efi-boot/config \
+  system/xfs/config \
+  system/vfat/config \
+  system/x11/config \
   hardware/avell-storm-450-r7-8745hs/config \
   features/docker/config
 ```

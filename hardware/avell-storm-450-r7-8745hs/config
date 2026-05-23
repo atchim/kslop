@@ -24,7 +24,9 @@ CONFIG_CRYPTO_DEV_CCP_DD=m
 
 # Storage
 # -------
-CONFIG_BLK_DEV_NVME=m
+# Built-in (=y): root lives on NVMe; the kernel must see it without
+# help from an initramfs (see ADR-0003).
+CONFIG_BLK_DEV_NVME=y
 
 # Graphics
 # --------

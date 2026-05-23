@@ -1,0 +1,16 @@
+# efi-boot — direct EFI stub boot path.
+#
+# Verified:
+#   liquorix-sources 7.0.9_p1 (2026-05-23)
+
+CONFIG_EFI=y
+CONFIG_EFI_STUB=y
+CONFIG_EFI_MIXED=y
+CONFIG_EFI_PARTITION=y
+CONFIG_EFIVAR_FS=y
+# DRM_SIMPLEDRM drives the firmware-supplied framebuffer until amdgpu
+# (or another GPU driver) takes over — cleaner than the legacy FB_EFI
+# path, which would also require CONFIG_FB=y.
+CONFIG_DRM_SIMPLEDRM=y
+
+# vim: ft=conf
