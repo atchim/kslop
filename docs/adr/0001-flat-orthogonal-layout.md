@@ -1,10 +1,12 @@
 # Flat orthogonal layout with folder-per-fragment
 
-Fragments live under three sibling category directories at the repo root —
-`hardware/`, `features/`, `flavors/` — each containing folder-per-slug
-entries with a `README.md` and an extensionless `config` fragment. Builds
-are assembled by passing fragments explicitly to `merge_config.sh`; no
-named-target layer exists.
+Fragments live under sibling category directories at the repo root — one
+per concern (`hardware/`, `features/`, `flavors/`, `tunings/`) — each
+containing folder-per-slug entries with a `README.md` and an
+extensionless `config` fragment. Builds are assembled by passing
+fragments explicitly to `merge_config.sh`; no named-target layer exists.
+New categories may be added later; the decision is the shape, not the
+count.
 
 ## Considered Options
 

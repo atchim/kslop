@@ -23,6 +23,12 @@ A fragment that enables a userspace-driven capability — Docker, KVM, Wine, etc
 — by toggling the kernel symbols that capability requires. Hardware-agnostic.
 _Avoid_: recipe
 
+**Tuning fragment**:
+A fragment scoped to UX-driven kernel preferences — scheduler granularity, HZ
+tick rate, preemption model — that aren't tied to a specific machine, userspace
+tool, or kernel source variant.
+_Avoid_: preference fragment
+
 **Flavor fragment**:
 A fragment scoped to knobs unique to one kernel source variant (liquorix,
 gentoo-sources, vanilla).
@@ -40,8 +46,9 @@ _Avoid_: recipe, target, config
 
 ## Relationships
 
-- A **build** = a **baseline** + one **flavor fragment** + one **hardware
-  fragment** + zero-or-more **feature fragments**
+- A **build** = a **baseline** + one **flavor fragment** + zero-or-more
+  **tuning fragments** + one **hardware fragment** + zero-or-more
+  **feature fragments**
 - A **baseline** is determined by which kernel source the **flavor fragment**
   targets
 - **Fragments** are orthogonal: any combination is valid as long as no two
