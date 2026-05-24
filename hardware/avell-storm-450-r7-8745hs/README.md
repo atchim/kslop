@@ -34,3 +34,14 @@ subsystem ID `1558:35a1`).
 - **Microcode loader** is built in (`CONFIG_MICROCODE=y`); modern
   kernels detect the CPU vendor and load the right ucode source
   automatically — no separate `MICROCODE_AMD` symbol exists in 7.x.
+- **NVIDIA dGPU vs. touchpad IRQ collision.** This system's IO-APICs
+  cover only GSI 0–55, so PCI INTx for the NVIDIA card is assigned a
+  _virtual_ IRQ from the same global namespace `pinctrl_amd` uses for
+  its GPIO-line interrupts. With `CONFIG_PINCTRL_AMD=y`, `amd_gpio`
+  claims the touchpad's IRQ (observed: 95) before NVIDIA probes, and
+  NVIDIA's pre-flight check fails with "Can't find an IRQ for your
+  NVIDIA card!" — taking the HDMI port (wired to the dGPU) down with
+  it. The fix is a bootloader-level workaround: add `pci=routeirq` to
+  the kernel command line so the kernel recomputes PCI IRQ routing
+  late and skips the collision. Not a kslop fragment because it lives
+  in the bootloader, not the kernel config.
