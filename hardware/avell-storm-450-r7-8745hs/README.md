@@ -15,8 +15,10 @@ subsystem ID `1558:35a1`).
 - **USB:** four AMD XHCI controllers (built-in chipset)
 - **Bluetooth:** Intel AX210 BT (USB transport, `8087:0032`)
 - **Webcam:** Chicony USB2.0 UVC camera (`04f2:b729`)
-- **Touchpad:** integrated, I2C-HID over AMD MP2 I2C bus
-  (enumerated via ACPI, not PCI)
+- **Touchpad:** integrated Elan controller (`ELAN0415` in ACPI),
+  I2C-HID over a Synopsys DesignWare I2C controller (`AMDI0010` in
+  ACPI), with its interrupt line routed through the AMD GPIO
+  pin-controller (enumerated via ACPI, not PCI)
 
 ## Quirks
 
