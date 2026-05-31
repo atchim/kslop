@@ -89,20 +89,35 @@ out-of-tree, so that tree carries no in-tree `.config`: a plain
 or `@module-rebuild`) **fails — "kernel not configured"** — because it
 has no `KBUILD_OUTPUT` and finds nothing to build against.
 
-Pin it once so automatic rebuilds find the out-of-tree config and target
-the liquorix kernel directly:
+**Set the var inline, at rebuild time — don't pin it persistently.** It
+is tempting to drop the path into `/etc/portage/env/` + `package.env` so
+automatic rebuilds find it. Don't: that file pins a _fixed_ build dir
+(e.g. `linux-7.0.10-pf1`) under a user `~/.cache`, and it is the wrong
+trade on every axis.
+
+- **A stale pin is worse than no pin.** After a kernel bump the pinned
+  path points at the _old_ build tree. The nvidia rebuild then
+  _succeeds_ against the wrong config and symbols, and you only find out
+  at load time via a vermagic/NVRM mismatch — a silent failure that is
+  harder to diagnose than the clean "kernel not configured" you'd get
+  with no pin at all.
+- **`~/.cache` is disposable.** Root reading a path under a user home is
+  fragile; a cache cleaner wiping it breaks nvidia builds at the worst
+  time, with no obvious cause.
+
+So pass it at the moment you rebuild, pointing at the tree you just
+built — it can't go stale because you name it explicitly:
 
 ```sh
-# /etc/portage/env/nvidia-kbuild.conf
-# Absolute path — root reads this, so no ~ expansion.
-KBUILD_OUTPUT="/home/<user>/.cache/kslop/linux-7.0.10-pf1"
+doas env KBUILD_OUTPUT=/home/<user>/.cache/kslop/linux-<ver> \
+  KERNEL_DIR=/usr/src/linux \
+  emerge --oneshot @module-rebuild
 ```
 
-```sh
-# /etc/portage/package.env
-x11-drivers/nvidia-drivers nvidia-kbuild.conf
-```
-
+The price is that an _unattended_ `nvidia-drivers` version bump pulled in
+by a routine `emerge @world` will fail with "kernel not configured"
+rather than rebuilding silently. That clean failure is the desired
+outcome: it forces the explicit rebuild above against the correct tree.
 The kernel module and the global nvidia userspace libraries share one
 version; a mismatch means an NVRM API error and a dead dGPU/HDMI (X keeps
 running on the amdgpu iGPU). After any `@world` that rebuilt
