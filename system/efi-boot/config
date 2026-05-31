@@ -1,4 +1,8 @@
-# efi-boot — direct EFI stub boot path.
+# efi-boot — UEFI boot environment. GRUB, installed as an EFI
+# application, is the bootloader; these symbols give the kernel UEFI
+# firmware services, EFI System Partition recognition, and efivars.
+# EFI_STUB is retained so the image stays directly EFI-bootable as a
+# fallback, but GRUB is the actual loader.
 #
 # Verified:
 #   liquorix-sources 7.0.9_p1 (2026-05-23)

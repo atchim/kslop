@@ -1,10 +1,12 @@
-# Direct EFI stub boot; no initramfs
+# No initramfs; boot-critical drivers are `=y`
 
-Built kernels boot directly from UEFI firmware via `CONFIG_EFI_STUB=y`.
-Drivers needed before root mounts — the storage controller (e.g.
-`BLK_DEV_NVME`) and the root filesystem driver (e.g. `XFS_FS`) — are
-built into the kernel (`=y`), not modules. No initramfs is generated
-or required at boot.
+No initramfs is generated or required at boot. Drivers needed before
+root mounts — the storage controller (e.g. `BLK_DEV_NVME`) and the root
+filesystem driver (e.g. `XFS_FS`) — are built into the kernel (`=y`),
+not modules, so GRUB hands the kernel image straight to the running
+system with nothing in between. `CONFIG_EFI_STUB=y` is retained only as
+a fallback so the image stays directly EFI-bootable; GRUB is the actual
+loader (see ADR-0004).
 
 ## Considered Options
 
