@@ -94,3 +94,9 @@ symbols are toggle-able as a group.
 - "recipe" was used initially for **feature fragments**. Resolved: a recipe
   implies the assembled thing, which is now called a **build**. Each composed
   input is a **fragment**.
+- "build" is also used colloquially for the `make` compile step ("build the
+  kernel"). Resolved: in kslop a **build** is the composed `.config` only.
+  `build.sh` _composes_ a build; it does not compile. Turning that `.config`
+  into `vmlinuz` + modules is _compiling_ (`make`); placing the results into
+  `/boot` + `/lib/modules` and wiring the bootloader is _installing_. Keep the
+  three verbs distinct in docs.
