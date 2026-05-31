@@ -26,7 +26,9 @@ subsystem ID `1558:35a1`).
   not a muxed setup. Nouveau cannot drive Ada Lovelace usefully;
   nouveau is explicitly disabled in the fragment, and the
   proprietary `nvidia-drivers` package provides the dGPU stack
-  (DKMS or precompiled).
+  (DKMS or precompiled). Rebuilding it against a kslop kernel has
+  Gentoo-specific gotchas (out-of-tree `KBUILD_OUTPUT`, `dist-kernel`
+  version skew) — see [`docs/installing-gentoo.md`](../../docs/installing-gentoo.md).
 - **No Clevo/Tongfang Kconfig support in 7.0.9.** Fan control and
   hotkeys rely on out-of-tree modules (e.g., `tuxedo-keyboard`,
   `clevo-keyboard`) if installed — no kernel symbol covers them.

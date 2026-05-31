@@ -91,3 +91,4 @@ make -C "$ksrc" O="$outdir" olddefconfig >/dev/null
 
 echo "build.sh: ok — .config written to $outdir/.config" >&2
 echo "build.sh:   next: make -C $ksrc O=$outdir -j$(nproc)" >&2
+echo "build.sh:   then: install per docs/installing-gentoo.md" >&2

@@ -36,6 +36,9 @@ a file named `config` (extensionless, vim modeline `ft=conf`).
   features/docker/config
 ```
 
+Once the `.config` is written, compile and install it per
+[`docs/installing-gentoo.md`](./docs/installing-gentoo.md).
+
 `build.sh` runs an **out-of-tree build**: `make O=<outdir> defconfig`
 against the kernel source tree, then `merge_config.sh -m -O <outdir>`
 with the fragments, then `make O=<outdir> olddefconfig`. The kernel
@@ -49,3 +52,5 @@ every fragment-vs-baseline override — that's expected, not an error.
 
 - [`CONTEXT.md`](./CONTEXT.md) — language, scope rules, relationships.
 - [`docs/adr/`](./docs/adr/) — architectural decisions.
+- [`docs/installing-gentoo.md`](./docs/installing-gentoo.md) — compiling
+  and installing a composed build on Gentoo.
