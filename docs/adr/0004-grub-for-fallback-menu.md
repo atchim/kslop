@@ -3,20 +3,20 @@
 The machine boots through GRUB (installed as an EFI application at
 `\EFI\gentoo\grubx64.efi`), not the kernel's own EFI stub. GRUB's
 generated menu lists every kernel in `/boot` — the primary liquorix
-build alongside the `gentoo-dist` kernels — so a broken or mismatched
-primary kernel can be sidestepped by picking another entry at boot,
-with no rescue media.
+build alongside any others (an older lqx build, or a `gentoo-dist`
+kernel if one is kept) — so a broken or mismatched primary kernel can be
+sidestepped by picking another entry at boot, with no rescue media.
 
 ## Considered Options
 
 - **Direct EFI stub boot** (one kernel registered with the firmware via
   `efibootmgr`). Rejected: a single firmware boot entry has no menu, so
   a bad kernel or a driver/userspace mismatch leaves no in-place
-  fallback. The concrete trigger: out-of-tree `nvidia-drivers` is
-  rebuilt only for the `gentoo-dist` kernel on a version bump (it
-  carries `USE=dist-kernel`), so the liquorix kernel's nvidia module can
-  fall out of sync with the global userspace libs — booting a
-  `gentoo-dist` entry is the recovery path.
+  fallback. The concrete trigger: the out-of-tree `nvidia-drivers`
+  module must match the global nvidia userspace libraries, and an
+  `@world` rebuild can leave the liquorix kernel's module missing or out
+  of sync — booting another entry is the recovery path while it is
+  rebuilt.
 
 ## Consequences
 
@@ -25,5 +25,5 @@ with no rescue media.
 - The kernel command line (e.g. `pci=routeirq`) is supplied by GRUB, not
   embedded in the image — consistent with the hardware README noting
   that quirk "lives in the bootloader, not the kernel config."
-- The `gentoo-dist` kernels are kept installed deliberately; the
-  fallback they provide is the reason for the menu.
+- Keeping at least one extra kernel in `/boot` is deliberate; the
+  fallback it provides is the reason for the menu.
