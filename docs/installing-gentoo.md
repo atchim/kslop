@@ -78,27 +78,45 @@ modinfo -F vermagic /lib/modules/7.0.10-lqx1/video/nvidia.ko
 # -> 7.0.10-lqx1 SMP preempt mod_unload
 ```
 
-### Gotcha: `nvidia-drivers` version bumps via `@world`
+### Gotcha: `@world` nvidia rebuilds need `KBUILD_OUTPUT`
 
-`nvidia-drivers` carries `USE=dist-kernel`, so when `emerge @world`
-rebuilds it (a `gentoo-kernel-bin` upgrade, or a driver version bump),
-the automatic rebuild targets the **`gentoo-dist`** kernel — _not_ the
-liquorix one, and it ignores `KBUILD_OUTPUT`. The userspace libraries are
-global, so after a _version_ bump the liquorix kernel is left with a
-stale `nvidia.ko` that mismatches them → NVRM API mismatch; the dGPU and
-its HDMI port fail (X itself still runs on the amdgpu iGPU).
+`nvidia-drivers` is built `USE=-dist-kernel` — the `dist-kernel`
+auto-rebuild only ever targeted the `gentoo-dist` kernel, never the
+liquorix one. With it off, the ebuild builds against `/usr/src/linux`
+(your eselect symlink → the liquorix source). But kslop builds
+out-of-tree, so that tree carries no in-tree `.config`: a plain
+`emerge @world` that rebuilds `nvidia-drivers` (a driver version bump,
+or `@module-rebuild`) **fails — "kernel not configured"** — because it
+has no `KBUILD_OUTPUT` and finds nothing to build against.
 
-After any `@world` that touched `nvidia-drivers`, rerun the
-`KBUILD_OUTPUT` rebuild above before booting liquorix. To check for a
-mismatch first:
+Pin it once so automatic rebuilds find the out-of-tree config and target
+the liquorix kernel directly:
+
+```sh
+# /etc/portage/env/nvidia-kbuild.conf
+# Absolute path — root reads this, so no ~ expansion.
+KBUILD_OUTPUT="/home/<user>/.cache/kslop/linux-7.0.10-pf1"
+```
+
+```sh
+# /etc/portage/package.env
+x11-drivers/nvidia-drivers nvidia-kbuild.conf
+```
+
+The kernel module and the global nvidia userspace libraries share one
+version; a mismatch means an NVRM API error and a dead dGPU/HDMI (X keeps
+running on the amdgpu iGPU). After any `@world` that rebuilt
+`nvidia-drivers`, confirm they agree:
 
 ```sh
 modinfo -F version /lib/modules/7.0.10-lqx1/video/nvidia.ko   # module side
 cat /var/db/pkg/x11-drivers/nvidia-drivers-*/PF               # userspace side
 ```
 
-If they differ, rebuild. If you boot before rebuilding, a `gentoo-dist`
-GRUB entry is the fallback (ADR-0004).
+If they differ (or the module is missing for the running kernel), rerun
+the `KBUILD_OUTPUT` rebuild above. A second GRUB entry — another lqx
+build, or a `gentoo-dist` kernel if you keep one — is the boot-time
+fallback (ADR-0004).
 
 ## 5. Register with GRUB
 
