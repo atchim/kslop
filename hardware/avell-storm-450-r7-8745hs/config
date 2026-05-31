@@ -15,7 +15,15 @@ CONFIG_AMDTEE=m
 CONFIG_AMD_SFH_HID=m
 CONFIG_AMD_PMF=m
 CONFIG_AMD_IOMMU=y
+# CONFIG_MICROCODE=y only enables the loader; with no initramfs
+# (ADR-0003) it has no source to load from, so the CPU stays on BIOS
+# microcode and AMD errata/security mitigations (e.g. Transient
+# Scheduler Attacks) go unfixed. Embed the Zen 4 (family 0x19) blob
+# into the image so it loads at the earliest boot stage without an
+# initramfs. Bump the filename if a future CPU is a different family.
 CONFIG_MICROCODE=y
+CONFIG_EXTRA_FIRMWARE="amd-ucode/microcode_amd_fam19h.bin"
+CONFIG_EXTRA_FIRMWARE_DIR="/lib/firmware"
 CONFIG_SENSORS_K10TEMP=m
 CONFIG_I2C_PIIX4=m
 CONFIG_SP5100_TCO=m

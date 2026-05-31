@@ -35,9 +35,17 @@ subsystem ID `1558:35a1`).
 - **Suspend/resume** depends on `CONFIG_AMD_PMC=y`. The `amd_pmf`
   module is built so it can bind at runtime when firmware advertises
   the Platform Management Framework.
-- **Microcode loader** is built in (`CONFIG_MICROCODE=y`); modern
-  kernels detect the CPU vendor and load the right ucode source
-  automatically — no separate `MICROCODE_AMD` symbol exists in 7.x.
+- **CPU microcode** is embedded in the image. `CONFIG_MICROCODE=y`
+  only enables the loader; the kernel still needs a _source_ for the
+  patch — normally an early initramfs cpio. With no initramfs
+  (ADR-0003), the loader finds nothing and the CPU stays on BIOS
+  microcode, leaving AMD errata and mitigations (e.g. Transient
+  Scheduler Attacks) unfixed. The fragment instead bakes the Zen 4
+  (family `0x19`) blob into `vmlinuz` via
+  `CONFIG_EXTRA_FIRMWARE="amd-ucode/microcode_amd_fam19h.bin"`, so it
+  applies at the earliest boot stage. Confirm with
+  `dmesg | grep microcode` showing an "Updated early to revision" line.
+  No separate `MICROCODE_AMD` symbol exists in 7.x.
 - **NVIDIA dGPU vs. touchpad IRQ collision.** This system's IO-APICs
   cover only GSI 0–55, so PCI INTx for the NVIDIA card is assigned a
   _virtual_ IRQ from the same global namespace `pinctrl_amd` uses for
