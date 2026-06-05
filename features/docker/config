@@ -1,8 +1,18 @@
-# docker — kernel symbols required by Docker for cgroups v2,
-# namespaces, overlayfs, and bridge networking.
+# docker — kernel symbols required by Docker for namespaces, cgroups v2,
+# overlayfs, bridge networking, and the netfilter rules Docker programs
+# at daemon start for port publishing and outbound NAT.
 #
-# Draft — first build not yet attempted. Populate the Verified section
-# after the first successful merge+build.
+# Networking is enabled for BOTH firewall backends (legacy x_tables and
+# nftables) so the kernel never blocks whichever userspace backend the
+# host runs — today's iptables-legacy, an iptables-nft shim, or Docker's
+# native nftables driver. Picking/migrating the backend is a userspace +
+# host-config change (iptables USE/eselect, daemon.json) and is out of
+# kslop's scope. See docs/adr/0005-docker-dual-firewall-backend.md.
+#
+# Netfilter tables/matches/targets are =m: they are not boot-critical and
+# autoload when dockerd/iptables/nft first run, well after root is mounted
+# (no initramfs implied). Bool symbols below are =y because they cannot be
+# modules.
 
 # Namespaces
 # ----------
@@ -21,17 +31,58 @@ CONFIG_CGROUP_DEVICE=y
 CONFIG_CGROUP_CPUACCT=y
 CONFIG_MEMCG=y
 CONFIG_CPUSETS=y
+# Device access control under cgroup v2 is enforced via eBPF (the v1
+# devices controller is gone); runc needs CGROUP_BPF + BPF_SYSCALL.
+CONFIG_BPF_SYSCALL=y
+CONFIG_CGROUP_BPF=y
+# Resource limits: --cpus quota and --device-write-bps / blkio throttling.
+CONFIG_CFS_BANDWIDTH=y
+CONFIG_BLK_DEV_THROTTLING=y
 
 # Storage
 # -------
 CONFIG_OVERLAY_FS=y
 
-# Networking
-# ----------
+# Networking — core
+# -----------------
 CONFIG_BRIDGE=y
 CONFIG_NETFILTER_ADVANCED=y
 CONFIG_BRIDGE_NETFILTER=y
 CONFIG_VETH=y
 CONFIG_NF_NAT=y
+
+# Networking — legacy iptables (x_tables) backend
+# -----------------------------------------------
+# Kernel 7.0 gates the legacy iptables core behind NETFILTER_XTABLES_LEGACY
+# and the per-family *_IPTABLES_LEGACY parents; without them the tables
+# below are silently dropped by olddefconfig.
+CONFIG_NETFILTER_XTABLES_LEGACY=y
+CONFIG_IP_NF_IPTABLES_LEGACY=m
+CONFIG_IP6_NF_IPTABLES_LEGACY=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_RAW=m
+CONFIG_IP6_NF_NAT=m
+CONFIG_IP6_NF_TARGET_MASQUERADE=m
+
+# Networking — nftables backend
+# -----------------------------
+# NFT_COMPAT carries the iptables-nft shim (iptables binary -> nftables);
+# the rest cover Docker's native nftables firewall driver. NF_TABLES_IPV4/
+# IPV6 are not default-y and gate NFT_NAT / NFT_FIB_*.
+CONFIG_NF_TABLES=m
+CONFIG_NF_TABLES_IPV4=y
+CONFIG_NF_TABLES_IPV6=y
+CONFIG_NFT_COMPAT=m
+CONFIG_NFT_CT=m
+CONFIG_NFT_NAT=m
+CONFIG_NFT_MASQ=m
+CONFIG_NFT_FIB_IPV4=m
+CONFIG_NFT_FIB_IPV6=m
 
 # vim: ft=conf
